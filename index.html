@@ -1,141 +1,147 @@
 <!DOCTYPE html>
-<html lang="si">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Connect - Senuja Dilmeth</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Smart Connect - Official Store</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Abhaya+Libre:wght@400;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; }
-        .si-font { font-family: 'Abhaya Libre', serif; }
-        .item-card { transition: all 0.4s ease; border-radius: 20px; background: white; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
-        .item-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .hero-section { background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1556656793-062ff9878273?auto=format&fit=crop&w=1770&q=80'); background-size: cover; background-position: center; height: 350px; display: flex; align-items: center; justify-content: center; color: white; text-align: center; }
-        .delete-btn { position: absolute; top: 15px; right: 15px; z-index: 100; background: #ef4444; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid white; }
+        :root { --primary: #ffcc00; --dark: #1a1a1a; --light: #ffffff; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; text-align: center; }
+        
+        header { background-color: var(--dark); color: var(--primary); padding: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        
+        /* New Stylish Hero Section */
+        .hero { 
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=2000&auto=format&fit=crop'); 
+            background-size: cover; 
+            background-position: center; 
+            color: white; 
+            padding: 80px 20px; 
+            position: relative;
+        }
+        .hero img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; margin-bottom: 15px; }
+        .hero h2 { font-size: 32px; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+        .hero p { font-size: 18px; opacity: 0.9; }
+
+        /* Search Bar */
+        .search-container { margin: -25px auto 30px; max-width: 500px; display: flex; padding: 0 15px; position: relative; z-index: 10; }
+        .search-container input { flex: 1; padding: 15px 25px; border: none; border-radius: 30px 0 0 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); outline: none; }
+        .search-container button { padding: 15px 25px; background: var(--primary); border: none; border-radius: 0 30px 30px 0; cursor: pointer; font-weight: bold; }
+
+        /* Bank Details Card */
+        .bank-details { background: white; margin: 20px auto; padding: 25px; max-width: 500px; width: 90%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: left; }
+        .bank-details h3 { margin-top: 0; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        .bank-info p { margin: 8px 0; font-size: 16px; display: flex; justify-content: space-between; }
+        .bank-info p b { color: #555; }
+
+        /* Product Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
+        .product-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; }
+        .product-card h3 { font-size: 18px; margin: 0 0 10px; color: var(--dark); }
+        .product-card .price { color: #007bff; font-weight: 800; font-size: 20px; margin-bottom: 15px; }
+        
+        .btn-whatsapp { background-color: #25D366; color: white; padding: 12px; text-decoration: none; border-radius: 10px; display: block; font-weight: bold; transition: 0.3s; }
+        .btn-whatsapp:hover { background-color: #1ebe57; }
+        
+        .admin-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 8px 15px; cursor: pointer; border-radius: 8px; font-size: 12px; backdrop-filter: blur(5px); }
+
+        @media (max-width: 480px) {
+            .product-grid { grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+            .hero h2 { font-size: 24px; }
+        }
     </style>
 </head>
-<body onload="renderProducts()">
+<body>
 
-    <nav class="bg-slate-900 p-4 text-white shadow-2xl sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-black italic">SMART <span class="text-yellow-400">CONNECT</span></h1>
-            <div class="flex gap-4">
-                <button onclick="checkAdmin()" class="bg-slate-800 px-4 py-2 rounded text-xs font-bold border border-slate-600">ADMIN</button>
-                <a href="https://wa.me/94785805283" target="_blank" class="bg-green-500 px-6 py-2 rounded-full text-sm font-bold flex items-center">
-                    <i class="fab fa-whatsapp mr-2"></i> WHATSAPP
-                </a>
-            </div>
-        </div>
-    </nav>
+<header>
+    <h2 style="margin:0; letter-spacing: 3px;">SMART CONNECT</h2>
+</header>
 
-    <section class="hero-section">
-        <div>
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 si-font">ඔබේ දුරකථනයට අවශ්‍ය සියල්ල</h1>
-            <p class="text-lg text-gray-300">Mobile Spare Parts & Accessories</p>
-        </div>
-    </section>
+<div class="hero">
+    <div class="admin-btn" onclick="openAdmin()">ADMIN PANEL</div>
+    <img src="https://img.freepik.com/free-photo/smart-watch-with-black-screen-isolated_53876-104958.jpg" alt="Store Logo">
+    <h2>Smart Solutions</h2>
+    <p>Premium Mobile Parts & Accessories</p>
+</div>
 
-    <div id="adminArea" class="hidden container mx-auto my-8 p-8 bg-white rounded-3xl border-2 border-blue-500 shadow-2xl">
-        <h3 class="font-bold text-blue-900 mb-6 uppercase">Store Manager</h3>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <input type="text" id="nameInput" placeholder="Item Name" class="p-3 border rounded-xl outline-blue-500">
-            <input type="text" id="priceInput" placeholder="Price (Rs.)" class="p-3 border rounded-xl outline-blue-500">
-            <input type="text" id="imgInput" placeholder="Image URL" class="p-3 border rounded-xl outline-blue-500">
-            <button onclick="addNewProduct()" class="bg-blue-600 text-white font-bold p-3 rounded-xl hover:bg-blue-800 transition">Add Item</button>
-        </div>
-        <button onclick="hideAdmin()" class="text-red-500 font-bold hover:underline">Exit Admin</button>
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="What are you looking for?" onkeyup="searchProducts()">
+    <button><i class="fa fa-search"></i></button>
+</div>
+
+<div class="bank-details">
+    <h3><i class="fa fa-credit-card"></i> Payment Information</h3>
+    <div class="bank-info">
+        <p><b>Bank:</b> <span>Commercial Bank</span></p>
+        <p><b>Branch:</b> <span>Mathugama</span></p>
+        <p><b>Account Name:</b> <span>Senija Dilmith</span></p>
+        <p><b>Account Number:</b> <span>8021750201</span></p>
     </div>
+</div>
 
-    <main class="container mx-auto p-6 min-h-screen">
-        <h2 class="text-2xl font-black text-slate-800 si-font uppercase border-b-2 mb-10 pb-4">
-            අපගේ නිෂ්පාදන <span class="text-blue-600 text-lg">/ OUR PRODUCTS</span>
-        </h2>
-        <div id="itemsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
-    </main>
+<h2 style="margin: 40px 0 20px; font-weight: 300; text-transform: uppercase;">Trending Products</h2>
+<div class="product-grid" id="productGrid"></div>
 
-    <script>
-        // ඔයාගේ Firebase Config එක මෙතන තියෙනවා
-        const firebaseConfig = {
-            apiKey: "AIzaSyD21c3PSuxtgpcHLBSnVGlrWMIuNz9Rixg",
-            authDomain: "smartconnect-ec061.firebaseapp.com",
-            databaseURL: "https://smartconnect-ec061-default-rtdb.firebaseio.com",
-            projectId: "smartconnect-ec061",
-            storageBucket: "smartconnect-ec061.firebasestorage.app",
-            messagingSenderId: "690863693117",
-            appId: "1:690863693117:web:9731407875cef53f60f954"
-        };
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        databaseURL: "https://smartconnect-ec061-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-        // Firebase එක පණගැන්වීම
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const productsRef = db.ref('products');
-
-        let isAdmin = false;
-
-        function checkAdmin() {
-            let pass = prompt("Password:");
-            if (pass === "2010") {
-                isAdmin = true;
-                document.getElementById('adminArea').classList.remove('hidden');
-                renderProducts();
-            }
-        }
-
-        function hideAdmin() { isAdmin = false; document.getElementById('adminArea').classList.add('hidden'); renderProducts(); }
-
-        // හැමෝටම පේන විදිහට බඩු පෙන්වීම (Real-time)
-        function renderProducts() {
-            productsRef.on('value', (snapshot) => {
-                const container = document.getElementById('itemsContainer');
-                container.innerHTML = "";
-                const data = snapshot.val();
-                
-                if(!data) {
-                    container.innerHTML = "<p class='col-span-full text-center text-gray-400'>තවමත් භාණ්ඩ ඇතුළත් කර නැත.</p>";
-                    return;
-                }
-
-                for (let id in data) {
-                    const item = data[id];
-                    container.innerHTML += `
-                        <div class="item-card p-4 shadow-lg">
-                            <img src="${item.img}" class="w-full h-52 object-cover rounded-2xl" onerror="this.src='https://via.placeholder.com/400'">
-                            <div class="pt-5">
-                                <h4 class="font-bold text-slate-800 text-lg uppercase">${item.name}</h4>
-                                <p class="text-blue-700 font-black text-2xl mt-2">Rs. ${Number(item.price).toLocaleString()}</p>
-                                <a href="https://wa.me/94785805283?text=I want to buy: ${item.name}" target="_blank" 
-                                   class="block mt-4 bg-green-500 text-white text-center py-3 rounded-xl font-bold hover:bg-green-600 transition">
-                                   WhatsApp Order
-                                </a>
-                            </div>
-                            ${isAdmin ? `<button onclick="removeItem('${id}')" class="delete-btn hover:bg-red-700 transition">×</button>` : ''}
-                        </div>`;
-                }
+    // Load Products
+    function loadProducts() {
+        database.ref('products').on('value', (snapshot) => {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            snapshot.forEach((childSnapshot) => {
+                const item = childSnapshot.val();
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <img src="${item.imageUrl}" alt="${item.name}">
+                        <h3>${item.name}</h3>
+                        <div class="price">Rs. ${item.price}</div>
+                        <a href="https://wa.me/94785805283?text=Hello Smart Connect, I want to order: ${item.name}" class="btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> ORDER VIA WA
+                        </a>
+                    </div>
+                `;
             });
-        }
+        });
+    }
 
-        function addNewProduct() {
-            const n = document.getElementById('nameInput').value;
-            const p = document.getElementById('priceInput').value;
-            const i = document.getElementById('imgInput').value;
-            if (n && p) {
-                productsRef.push({ name: n, price: p, img: i || 'https://via.placeholder.com/400' });
-                document.getElementById('nameInput').value = "";
-                document.getElementById('priceInput').value = "";
-                document.getElementById('imgInput').value = "";
-                alert("භාණ්ඩය සාර්ථකව ඇතුළත් කළා! දැන් හැමෝටම පෙනෙනවා.");
-            }
+    function searchProducts() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let cards = document.getElementsByClassName('product-card');
+        for (let card of cards) {
+            let name = card.getElementsByTagName('h3')[0].innerText.toLowerCase();
+            card.style.display = name.includes(input) ? "block" : "none";
         }
+    }
 
-        function removeItem(id) {
-            if(confirm("මකන්නද?")) {
-                db.ref('products/' + id).remove();
+    function openAdmin() {
+        let pass = prompt("Access Restricted. Enter Password:");
+        if (pass === "2010") {
+            let name = prompt("Product Name:");
+            let price = prompt("Price (Rs):");
+            let url = prompt("Image URL:");
+            if (name && price && url) {
+                database.ref('products').push({ name: name, price: price, imageUrl: url });
+                alert("Product Added Successfully!");
             }
+        } else {
+            alert("Unauthorized Access!");
         }
-    </script>
+    }
+    loadProducts();
+</script>
+
 </body>
 </html>
