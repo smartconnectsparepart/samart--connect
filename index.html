@@ -8,95 +8,89 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #ffcc00; --dark: #1a1a1a; --light: #ffffff; }
-        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; text-align: center; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f4f4f4; text-align: center; color: #333; }
+        header { background-color: #222; color: #ffcc00; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .admin-nav-btn { background: #ffcc00; color: #222; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; border: none; font-size: 13px; }
         
-        header { background-color: var(--dark); color: var(--primary); padding: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        
-        /* New Stylish Hero Section */
-        .hero { 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-                        url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=2000&auto=format&fit=crop'); 
-            background-size: cover; 
-            background-position: center; 
-            color: white; 
-            padding: 80px 20px; 
-            position: relative;
-        }
-        .hero img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; margin-bottom: 15px; }
-        .hero h2 { font-size: 32px; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
-        .hero p { font-size: 18px; opacity: 0.9; }
+        /* Logo Section */
+        .hero { background-color: #333; color: white; padding: 30px 20px; }
+        .logo-circle { width: 120px; height: 120px; background: #222; border: 4px solid #ffcc00; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+        .logo-text { color: #ffcc00; font-weight: bold; font-size: 15px; text-transform: uppercase; line-height: 1.2; }
 
         /* Search Bar */
-        .search-container { margin: -25px auto 30px; max-width: 500px; display: flex; padding: 0 15px; position: relative; z-index: 10; }
-        .search-container input { flex: 1; padding: 15px 25px; border: none; border-radius: 30px 0 0 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); outline: none; }
-        .search-container button { padding: 15px 25px; background: var(--primary); border: none; border-radius: 0 30px 30px 0; cursor: pointer; font-weight: bold; }
+        .search-container { margin: 20px auto; max-width: 450px; display: flex; padding: 0 15px; }
+        .search-container input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px 0 0 25px; outline: none; }
+        .search-container button { padding: 12px 20px; background: #ffcc00; border: none; border-radius: 0 25px 25px 0; cursor: pointer; }
 
-        /* Bank Details Card */
-        .bank-details { background: white; margin: 20px auto; padding: 25px; max-width: 500px; width: 90%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: left; }
-        .bank-details h3 { margin-top: 0; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
-        .bank-info p { margin: 8px 0; font-size: 16px; display: flex; justify-content: space-between; }
-        .bank-info p b { color: #555; }
+        /* Admin Section (Hidden by default) */
+        #adminSection { display: none; background: #fff; margin: 20px auto; padding: 20px; max-width: 450px; width: 90%; border-radius: 10px; border: 2px dashed #ffcc00; }
+        .admin-box input { width: 90%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; }
+        .add-btn { width: 95%; padding: 10px; background: #222; color: #ffcc00; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
         /* Product Grid */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
-        .product-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; }
-        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; }
-        .product-card h3 { font-size: 18px; margin: 0 0 10px; color: var(--dark); }
-        .product-card .price { color: #007bff; font-weight: 800; font-size: 20px; margin-bottom: 15px; }
-        
-        .btn-whatsapp { background-color: #25D366; color: white; padding: 12px; text-decoration: none; border-radius: 10px; display: block; font-weight: bold; transition: 0.3s; }
-        .btn-whatsapp:hover { background-color: #1ebe57; }
-        
-        .admin-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 8px 15px; cursor: pointer; border-radius: 8px; font-size: 12px; backdrop-filter: blur(5px); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 20px; }
+        .product-card { background: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+        .btn-whatsapp { background-color: #25D366; color: white; padding: 10px; text-decoration: none; border-radius: 5px; display: block; font-weight: bold; margin-top: 10px; font-size: 14px; }
 
-        @media (max-width: 480px) {
-            .product-grid { grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-            .hero h2 { font-size: 24px; }
-        }
+        /* Bank Details at bottom */
+        .bank-details { background: white; margin: 40px auto 20px; padding: 20px; max-width: 450px; width: 90%; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: left; border-left: 5px solid #ffcc00; }
+        
+        footer { background: #222; color: white; padding: 20px; margin-top: 20px; font-size: 14px; }
+        footer b { color: #ffcc00; }
     </style>
 </head>
 <body>
 
 <header>
-    <h2 style="margin:0; letter-spacing: 3px;">SMART CONNECT</h2>
+    <div style="width: 80px;"></div>
+    <h1 style="margin:0; font-size: 24px;">SMART CONNECT</h1>
+    <button class="admin-nav-btn" onclick="checkAdmin()">ADMIN</button>
 </header>
 
 <div class="hero">
-    <div class="admin-btn" onclick="openAdmin()">ADMIN PANEL</div>
-    <img src="https://img.freepik.com/free-photo/smart-watch-with-black-screen-isolated_53876-104958.jpg" alt="Store Logo">
-    <h2>Smart Solutions</h2>
-    <p>Premium Mobile Parts & Accessories</p>
+    <div class="logo-circle">
+        <div class="logo-text">SMART<br>CONNECT</div>
+    </div>
+    <p>Mobile Spare Parts & Accessories</p>
+</div>
+
+<div id="adminSection" class="admin-box">
+    <h3><i class="fa fa-plus-circle"></i> Add New Product</h3>
+    <input type="text" id="pName" placeholder="Product Name">
+    <input type="text" id="pPrice" placeholder="Price (Rs.)">
+    <input type="text" id="pUrl" placeholder="Image URL">
+    <button class="add-btn" onclick="addNewProduct()">Save to Store</button>
+    <button style="background:none; border:none; color:red; cursor:pointer; margin-top:10px;" onclick="hideAdmin()">Close Admin</button>
 </div>
 
 <div class="search-container">
-    <input type="text" id="searchInput" placeholder="What are you looking for?" onkeyup="searchProducts()">
+    <input type="text" id="searchInput" placeholder="Search products..." onkeyup="searchProducts()">
     <button><i class="fa fa-search"></i></button>
 </div>
 
-<div class="bank-details">
-    <h3><i class="fa fa-credit-card"></i> Payment Information</h3>
-    <div class="bank-info">
-        <p><b>Bank:</b> <span>Commercial Bank</span></p>
-        <p><b>Branch:</b> <span>Mathugama</span></p>
-        <p><b>Account Name:</b> <span>Senija Dilmith</span></p>
-        <p><b>Account Number:</b> <span>8021750201</span></p>
-    </div>
-</div>
-
-<h2 style="margin: 40px 0 20px; font-weight: 300; text-transform: uppercase;">Trending Products</h2>
+<h3 style="margin-top: 30px; text-transform: uppercase;">Our Products</h3>
 <div class="product-grid" id="productGrid"></div>
 
+<div class="bank-details">
+    <h3><i class="fa fa-university"></i> Payment Details</h3>
+    <p><b>Bank:</b> Commercial Bank</p>
+    <p><b>Branch:</b> Mathugama</p>
+    <p><b>Account Name:</b> Senuja Dilmeth</p>
+    <p><b>Account Number:</b> 8021750201</p>
+</div>
+
+<footer>
+    Designed & Developed by <b>Senuja Dilmeth</b>
+</footer>
+
 <script>
-    // Firebase Config
     const firebaseConfig = {
         databaseURL: "https://smartconnect-ec061-default-rtdb.firebaseio.com"
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Load Products
     function loadProducts() {
         database.ref('products').on('value', (snapshot) => {
             const grid = document.getElementById('productGrid');
@@ -106,15 +100,45 @@
                 grid.innerHTML += `
                     <div class="product-card">
                         <img src="${item.imageUrl}" alt="${item.name}">
-                        <h3>${item.name}</h3>
-                        <div class="price">Rs. ${item.price}</div>
-                        <a href="https://wa.me/94785805283?text=Hello Smart Connect, I want to order: ${item.name}" class="btn-whatsapp">
-                            <i class="fab fa-whatsapp"></i> ORDER VIA WA
-                        </a>
+                        <h3 style="font-size: 16px;">${item.name}</h3>
+                        <p style="color: blue; font-weight: bold;">Rs. ${item.price}</p>
+                        <a href="https://wa.me/94785805283?text=Order: ${item.name}" class="btn-whatsapp">WhatsApp Order</a>
                     </div>
                 `;
             });
         });
+    }
+
+    // Check Admin Password and Show Section
+    function checkAdmin() {
+        let pass = prompt("Enter Admin Password:");
+        if (pass === "2010") {
+            document.getElementById('adminSection').style.display = 'block';
+            window.scrollTo(0, 0); // Scroll to top to see admin box
+        } else {
+            alert("Wrong Password!");
+        }
+    }
+
+    function hideAdmin() {
+        document.getElementById('adminSection').style.display = 'none';
+    }
+
+    function addNewProduct() {
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const url = document.getElementById('pUrl').value;
+
+        if (name && price && url) {
+            database.ref('products').push({ name: name, price: price, imageUrl: url });
+            alert("Success! Product added.");
+            document.getElementById('pName').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pUrl').value = '';
+            hideAdmin();
+        } else {
+            alert("Please fill all fields!");
+        }
     }
 
     function searchProducts() {
@@ -126,20 +150,6 @@
         }
     }
 
-    function openAdmin() {
-        let pass = prompt("Access Restricted. Enter Password:");
-        if (pass === "2010") {
-            let name = prompt("Product Name:");
-            let price = prompt("Price (Rs):");
-            let url = prompt("Image URL:");
-            if (name && price && url) {
-                database.ref('products').push({ name: name, price: price, imageUrl: url });
-                alert("Product Added Successfully!");
-            }
-        } else {
-            alert("Unauthorized Access!");
-        }
-    }
     loadProducts();
 </script>
 
