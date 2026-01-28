@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Connect - Senuja Dilmeth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Abhaya+Libre:wght@400;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; }
+        .si-font { font-family: 'Abhaya Libre', serif; }
+        .item-card { transition: all 0.4s ease; border-radius: 20px; background: white; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
+        .item-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .hero-section { background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1556656793-062ff9878273?auto=format&fit=crop&w=1770&q=80'); background-size: cover; background-position: center; height: 350px; display: flex; align-items: center; justify-content: center; color: white; text-align: center; }
+        .delete-btn { position: absolute; top: 15px; right: 15px; z-index: 100; background: #ef4444; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid white; }
+    </style>
+</head>
+<body onload="renderProducts()">
+
+    <nav class="bg-slate-900 p-4 text-white shadow-2xl sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-black italic">SMART <span class="text-yellow-400">CONNECT</span></h1>
+            <div class="flex gap-4">
+                <button onclick="checkAdmin()" class="bg-slate-800 px-4 py-2 rounded text-xs font-bold border border-slate-600">ADMIN</button>
+                <a href="https://wa.me/94785805283" target="_blank" class="bg-green-500 px-6 py-2 rounded-full text-sm font-bold flex items-center">
+                    <i class="fab fa-whatsapp mr-2"></i> WHATSAPP
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 si-font">ඔබේ දුරකථනයට අවශ්‍ය සියල්ල</h1>
+            <p class="text-lg text-gray-300">Mobile Spare Parts & Accessories</p>
+        </div>
+    </section>
+
+    <div id="adminArea" class="hidden container mx-auto my-8 p-8 bg-white rounded-3xl border-2 border-blue-500 shadow-2xl">
+        <h3 class="font-bold text-blue-900 mb-6 uppercase">Store Manager</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <input type="text" id="nameInput" placeholder="Item Name" class="p-3 border rounded-xl outline-blue-500">
+            <input type="text" id="priceInput" placeholder="Price (Rs.)" class="p-3 border rounded-xl outline-blue-500">
+            <input type="text" id="imgInput" placeholder="Image URL" class="p-3 border rounded-xl outline-blue-500">
+            <button onclick="addNewProduct()" class="bg-blue-600 text-white font-bold p-3 rounded-xl hover:bg-blue-800 transition">Add Item</button>
+        </div>
+        <button onclick="hideAdmin()" class="text-red-500 font-bold hover:underline">Exit Admin</button>
+    </div>
+
+    <main class="container mx-auto p-6 min-h-screen">
+        <h2 class="text-2xl font-black text-slate-800 si-font uppercase border-b-2 mb-10 pb-4">
+            අපගේ නිෂ්පාදන <span class="text-blue-600 text-lg">/ OUR PRODUCTS</span>
+        </h2>
+        <div id="itemsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+    </main>
+
+    <script>
+        // ඔයාගේ Firebase Config එක මෙතන තියෙනවා
+        const firebaseConfig = {
+            apiKey: "AIzaSyD21c3PSuxtgpcHLBSnVGlrWMIuNz9Rixg",
+            authDomain: "smartconnect-ec061.firebaseapp.com",
+            databaseURL: "https://smartconnect-ec061-default-rtdb.firebaseio.com",
+            projectId: "smartconnect-ec061",
+            storageBucket: "smartconnect-ec061.firebasestorage.app",
+            messagingSenderId: "690863693117",
+            appId: "1:690863693117:web:9731407875cef53f60f954"
+        };
+
+        // Firebase එක පණගැන්වීම
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const productsRef = db.ref('products');
+
+        let isAdmin = false;
+
+        function checkAdmin() {
+            let pass = prompt("Password:");
+            if (pass === "2010") {
+                isAdmin = true;
+                document.getElementById('adminArea').classList.remove('hidden');
+                renderProducts();
+            }
+        }
+
+        function hideAdmin() { isAdmin = false; document.getElementById('adminArea').classList.add('hidden'); renderProducts(); }
+
+        // හැමෝටම පේන විදිහට බඩු පෙන්වීම (Real-time)
+        function renderProducts() {
+            productsRef.on('value', (snapshot) => {
+                const container = document.getElementById('itemsContainer');
+                container.innerHTML = "";
+                const data = snapshot.val();
+                
+                if(!data) {
+                    container.innerHTML = "<p class='col-span-full text-center text-gray-400'>තවමත් භාණ්ඩ ඇතුළත් කර නැත.</p>";
+                    return;
+                }
+
+                for (let id in data) {
+                    const item = data[id];
+                    container.innerHTML += `
+                        <div class="item-card p-4 shadow-lg">
+                            <img src="${item.img}" class="w-full h-52 object-cover rounded-2xl" onerror="this.src='https://via.placeholder.com/400'">
+                            <div class="pt-5">
+                                <h4 class="font-bold text-slate-800 text-lg uppercase">${item.name}</h4>
+                                <p class="text-blue-700 font-black text-2xl mt-2">Rs. ${Number(item.price).toLocaleString()}</p>
+                                <a href="https://wa.me/94785805283?text=I want to buy: ${item.name}" target="_blank" 
+                                   class="block mt-4 bg-green-500 text-white text-center py-3 rounded-xl font-bold hover:bg-green-600 transition">
+                                   WhatsApp Order
+                                </a>
+                            </div>
+                            ${isAdmin ? `<button onclick="removeItem('${id}')" class="delete-btn hover:bg-red-700 transition">×</button>` : ''}
+                        </div>`;
+                }
+            });
+        }
+
+        function addNewProduct() {
+            const n = document.getElementById('nameInput').value;
+            const p = document.getElementById('priceInput').value;
+            const i = document.getElementById('imgInput').value;
+            if (n && p) {
+                productsRef.push({ name: n, price: p, img: i || 'https://via.placeholder.com/400' });
+                document.getElementById('nameInput').value = "";
+                document.getElementById('priceInput').value = "";
+                document.getElementById('imgInput').value = "";
+                alert("භාණ්ඩය සාර්ථකව ඇතුළත් කළා! දැන් හැමෝටම පෙනෙනවා.");
+            }
+        }
+
+        function removeItem(id) {
+            if(confirm("මකන්නද?")) {
+                db.ref('products/' + id).remove();
+            }
+        }
+    </script>
+</body>
+</html>
